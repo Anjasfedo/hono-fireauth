@@ -1,18 +1,10 @@
 import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
-import { auth, db } from "./configs/firebase";
-// import userRoute from "./controllers/user";
+import { auth } from "@src/configs/firebase";
+import { setUser, User } from "@src/models/user";
+import postRoute from "@src/controllers/post";
 
 const app = new Hono();
-
-async function saveUserDataToFirestore(uid: string, userData: User) {
-  try {
-    await db.collection("users").doc(uid).set(userData);
-    console.log("User data saved to Firestore");
-  } catch (error) {
-    console.error("Error saving user data to Firestore:", error);
-  }
-}
 
 app.use(
   "/api/*",
@@ -21,13 +13,16 @@ app.use(
       try {
         const decodedToken = await auth.verifyIdToken(token);
         const uid = decodedToken.uid;
-        // Set the user information in the request context
+
+        const userRecord = await auth.getUser(uid);
+
         const user: User = {
-          identifier: decodedToken.email, // You can use any unique identifier here
-          uid: decodedToken.uid,
+          name: userRecord.displayName,
+          identifier: userRecord.email,
+          uid: userRecord.uid,
         };
-        // Save user data to Firestore
-        await saveUserDataToFirestore(uid, user);
+
+        await setUser(uid, user);
         return true;
       } catch (error) {
         console.log(error);
@@ -37,20 +32,10 @@ app.use(
   })
 );
 
-export type User = {
-  identifier: string | undefined;
-  uid: string;
-};
-
-type UserData = {
-  id: string;
-  user: User;
-};
-
 app.get("/api/page", (c) => {
   return c.json({ message: "You are authorized" });
 });
 
-// app.route("/api/users", userRoute);
+app.route("/api/posts", postRoute);
 
 export default app;

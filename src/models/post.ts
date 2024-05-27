@@ -1,4 +1,4 @@
-import { db } from "../configs/firebase";
+import { db } from "@src/configs/firebase";
 
 export type Post = {
   title: string;
@@ -32,10 +32,6 @@ export const getPostById = async (id: string): Promise<PostData | null> => {
   const docRef = db.collection("posts").doc(id);
   const doc = await docRef.get();
 
-  if (!doc.exists) {
-    return null;
-  }
-
   const postData: Post = doc.data() as Post;
   const post: PostData = {
     id: doc.id,
@@ -43,7 +39,7 @@ export const getPostById = async (id: string): Promise<PostData | null> => {
   };
 
   return post;
-};1
+};
 
 export const addPost = async (post: Post): Promise<string> => {
   const postsRef = db.collection("posts");

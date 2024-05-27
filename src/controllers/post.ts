@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { addPost, getAllPosts, getPostById, Post } from "../models/post";
+import { addPost, getAllPosts, getPostById, Post } from "@src/models/post";
 
 const app = new Hono();
 
