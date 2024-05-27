@@ -1,10 +1,13 @@
 import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
+import { swaggerUI } from "@hono/swagger-ui";
 import { auth } from "@src/configs/firebase";
 import { setUser, User } from "@src/models/user";
 import postRoute from "@src/controllers/post";
 
 const app = new Hono();
+
+app.get("/ui", swaggerUI({ url: "/doc" }));
 
 app.use(
   "/api/*",
